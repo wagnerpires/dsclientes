@@ -19,21 +19,9 @@ public class ClientResource {
 	
 	@RequestMapping(value="/{id}", method=RequestMethod.GET)
 	public ResponseEntity<?> find(@PathVariable Integer id) {
-		Client obj = service.find(id);
-		return ResponseEntity.ok().body(obj);
-		
-		/*
-		Client cli1 = new Client(1, "Wagner Alves Pires", "428805481-87", (double) 2, null, 1);
-		Client cli2 = new Client(2, "Miramar Maria Souza Neto Alves", "582398805-25", (double) 2, null, 2);		
-		
-		List<Client> lista  = new ArrayList<>();
-		lista.add(cli1);
-		lista.add(cli2);
-		
-		return lista; //"REST está funcionando";
-		
-		*/
-		
+					Client obj = service.find(id);
+			return ResponseEntity.ok().body(obj);
+			
 	}
 
 }
