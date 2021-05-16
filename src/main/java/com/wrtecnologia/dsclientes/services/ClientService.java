@@ -14,12 +14,7 @@ public class ClientService {
 	
 	@Autowired
 	private ClientRepository repo;
-/*	
-	public Client find(Integer id) {
-		Optional<Client> obj = repo.findById(id);
-		return obj.orElse(null);
-		}
-*/
+
 	public Client find(Integer id) {
 		Optional<Client> obj = repo.findById(id);
 		return obj.orElseThrow(() -> new ObjectNotFoundException(
@@ -28,6 +23,11 @@ public class ClientService {
 	
 	public Client insert(Client obj) {
 		obj.setId(null);
+		return repo.save(obj);
+	}
+	
+	public Client update(Client obj) {
+		find(obj.getId());
 		return repo.save(obj);
 	}
 	
