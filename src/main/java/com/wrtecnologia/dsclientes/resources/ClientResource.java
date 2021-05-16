@@ -74,3 +74,5 @@ public class ClientResource {
 	}
 	
 }
+
+// http://localhost:8080/clients/page?linesPerPage=3&page=2&direction=ASC

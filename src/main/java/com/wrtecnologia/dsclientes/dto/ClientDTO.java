@@ -1,8 +1,6 @@
 package com.wrtecnologia.dsclientes.dto;
 
 import java.io.Serializable;
-import java.time.Instant;
-
 import com.wrtecnologia.dsclientes.domain.Client;
 
 public class ClientDTO implements Serializable{
