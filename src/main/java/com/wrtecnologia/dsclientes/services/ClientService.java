@@ -1,8 +1,12 @@
 package com.wrtecnologia.dsclientes.services;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.wrtecnologia.dsclientes.domain.Client;
@@ -29,6 +33,20 @@ public class ClientService {
 	public Client update(Client obj) {
 		find(obj.getId());
 		return repo.save(obj);
+	}
+
+	public void delete(Integer id) {
+		find(id);
+		repo.deleteById(id);
+	}
+	
+	public List<Client> findAll() {
+		return repo.findAll();
+	}
+	
+	public Page<Client> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
+		return repo.findAll(pageRequest);
 	}
 	
 }
