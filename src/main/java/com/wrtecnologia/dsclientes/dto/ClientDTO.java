@@ -1,6 +1,7 @@
 package com.wrtecnologia.dsclientes.dto;
 
 import java.io.Serializable;
+
 import com.wrtecnologia.dsclientes.domain.Client;
 
 public class ClientDTO implements Serializable{
@@ -12,9 +13,14 @@ public class ClientDTO implements Serializable{
 	public ClientDTO() {
 	}
 	
-	public ClientDTO(Client obj) {
-		id = obj.getId();
-		name = obj.getName();
+	public ClientDTO(Integer id, String name) {
+		this.id = id;
+		this.name = name;
+	}
+	
+	public ClientDTO(Client entity) {
+		this.id = entity.getId();
+		this.name = entity.getName();
 	}
 
 	public Integer getId() {
