@@ -1,11 +1,14 @@
 package com.wrtecnologia.dsclientes.services;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
@@ -14,48 +17,75 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.wrtecnologia.dsclientes.domain.Client;
 import com.wrtecnologia.dsclientes.dto.ClientDTO;
-import com.wrtecnologia.dsclientes.exceptions.ObjectNotFoundException;
 import com.wrtecnologia.dsclientes.repositories.ClientRepository;
+import com.wrtecnologia.dsclientes.services.exceptions.DatabaseException;
+import com.wrtecnologia.dsclientes.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class ClientService {
-	
+
 	@Autowired
 	private ClientRepository repo;
 
-	public Client find(Integer id) {
+	@Transactional(readOnly = true)
+	public ClientDTO findById(Integer id) {
 		Optional<Client> obj = repo.findById(id);
-		return obj.orElseThrow(() -> new ObjectNotFoundException(
-		"Objeto não encontrado! Id: " + id + ", Tipo: " + Client.class.getName()));
-		}
-	
-	public Client insert(Client obj) {
-		obj.setId(null);
-		return repo.save(obj);
-	}
-	
-	public Client update(Client obj) {
-		find(obj.getId());
-		return repo.save(obj);
+		Client entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found"));
+		return new ClientDTO(entity);
 	}
 
-	public void delete(Integer id) {
-		find(id);
-		repo.deleteById(id);
+	@Transactional
+	public ClientDTO insert(ClientDTO dto) {
+		dto.setId(null);
+		Client entity = new Client();
+		entity.setName(dto.getName());
+		entity.setCpf(dto.getCpf());
+		entity.setIncome(dto.getIncome());
+		entity.setBirthDate(dto.getBirthDate());
+		entity.setChildren(dto.getChildren());
+		entity = repo.save(entity);
+		return new ClientDTO(entity);
 	}
-	
+
+	@Transactional
+	public ClientDTO update(Integer id, ClientDTO dto) {
+		try {
+			Client entity = repo.getOne(id);
+			entity.setName(dto.getName());
+			entity.setCpf(dto.getCpf());
+			entity.setIncome(dto.getIncome());
+			entity.setBirthDate(dto.getBirthDate());
+			entity.setChildren(dto.getChildren());
+			entity = repo.save(entity);
+			return new ClientDTO(entity);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Id not found " + id);
+
+		}
+	}
+
+	// Sem anotação @Transactional prá capturar uma exceção do banco caso ocorra.
+	public void delete(Integer id) {
+		try {
+			repo.deleteById(id);
+		} catch (EmptyResultDataAccessException e) {
+			throw new ResourceNotFoundException("Id not found " + id);
+		}
+		catch (DataIntegrityViolationException e) {
+			throw new DatabaseException("Integrity violation");
+		}
+	}
+
 	@Transactional(readOnly = true)
 	public List<ClientDTO> findAll() {
 		List<Client> list = repo.findAll();
-		
 		return list.stream().map(x -> new ClientDTO(x)).collect(Collectors.toList());
-		
+
 	}
-	
+
 	public Page<Client> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
 		return repo.findAll(pageRequest);
 	}
-	
-}
 
+}

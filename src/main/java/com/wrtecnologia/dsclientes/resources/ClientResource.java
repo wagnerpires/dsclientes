@@ -6,8 +6,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,28 +29,28 @@ public class ClientResource {
 	@Autowired
 	private ClientService service;
 
-	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Client> find(@PathVariable Integer id) {
-		Client obj = service.find(id);
-		return ResponseEntity.ok().body(obj);
-
+	@GetMapping(value = "/{id}")
+	public ResponseEntity<ClientDTO> findById(@PathVariable Integer id) {
+		ClientDTO dto = service.findById(id);
+		return ResponseEntity.ok().body(dto);
+	}
+	
+	@PostMapping
+	public ResponseEntity<ClientDTO> insert(@RequestBody ClientDTO dto) {
+		dto = service.insert(dto);
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+				.buildAndExpand(dto.getId()).toUri();
+		return ResponseEntity.created(uri).body(dto); //build();
 	}
 
-	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<Void> insert(@RequestBody Client obj) {
-		obj = service.insert(obj);
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
-		return ResponseEntity.created(uri).build();
+	@PutMapping(value = "/{id}")
+	public ResponseEntity<ClientDTO> update(@RequestBody ClientDTO dto, @PathVariable Integer id) {
+		dto = service.update(id, dto);
+		return ResponseEntity.ok().body(dto);
 	}
 
-	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Void> update(@RequestBody Client obj, @PathVariable Integer id) {
-		obj.setId(id);
-		obj = service.update(obj);
-		return ResponseEntity.noContent().build();
-	}
-
-	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+	// @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+	@DeleteMapping(value = "/{id}")	
 	public ResponseEntity<Void> delete(@PathVariable Integer id) {
 		service.delete(id);
 		return ResponseEntity.noContent().build();
